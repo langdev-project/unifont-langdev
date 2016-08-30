@@ -6,7 +6,7 @@ SHELL = /bin/sh
 # Go Note : BINDIR is the directory containing the Unifont binaries.
 # You'll need to compile your own from the Unifont source.
 
-BINDIR = ./bin
+BINDIR = /usr/local/bin
 
 # Go Note : I use the OS X application version of FontForge.
 # If you use something else, you'll need to change that below.
@@ -40,11 +40,9 @@ COPYRIGHT = "Copyright (C) 2016 Margaret \"Go\" Shoemake. \
 Licensed under the GNU General Public License; either version 2, or \
 (at your option) a later version, with the GNU Font Embedding Exception."
 
-# Go Note: Unifont LANGDEV doesn't have any real relation to Unicode,
-# but the version is assigned here to keep it in line with the rest of
-# Unifont.
+# Go Note: The following version number is for 'LANGDEV in Unicode'.
 
-UNICODE_VERSION = 9.0
+UNICODE_VERSION = 2.1
 PKG_REV = 00
 VERSION = $(UNICODE_VERSION).$(PKG_REV)
 
