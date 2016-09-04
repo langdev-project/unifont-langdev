@@ -25,7 +25,18 @@ FONTFORGE = /Applications/FontForge.app/Contents/MacOS/FontForge
 FONTFILE=UnifontLANGDEV
 FONTNAME=Unifont LANGDEV
 PSNAME=UnifontLANGDEV
-COMBINING=combining
+COMBINING=source/combining.txt
+
+# Go Note: I've added 16HEX which is the folder of the 16px hex files,
+# 32HEX which is the folder of the 32px hex files, and SPACES which is
+# the spaces.hex file. FONTNAME32 and PSNAME32 give the names for the
+# 32px version.
+
+16HEX=source/hex
+32HEX=source/hex-32
+SPACES=source/spaces.hex
+FONTNAME32=Unifont LANGDEV 32
+PSNAME32=UnifontLANGDEV32
 
 #
 # The PostScript name of a font can't contain spaces--remove them.
@@ -43,7 +54,7 @@ Licensed under the GNU General Public License; either version 2, or \
 # Go Note: The following version number is for 'LANGDEV in Unicode'.
 
 UNICODE_VERSION = 2.1
-PKG_REV = 00
+PKG_REV = 01
 VERSION = $(UNICODE_VERSION).$(PKG_REV)
 
 #
@@ -69,18 +80,25 @@ VERSION = $(UNICODE_VERSION).$(PKG_REV)
 # a .sfd generated from the whole unifont.hex would be too big to
 # process all at once.
 
-all: outline
+# Go Note: Right now 32px fonts aren't handled properly by hex2sfd :(
 
-# Go Note : I've added a few lines to move the font and combining
+# all: 16 32
+just16: 16
+
+# Go Note: I've added a few lines to move the font and combining
 # files out into the open if they aren't already.
 
-SOURCEDIR=source
+$(FONTFILE).hex: $(SPACES) $(16HEX)/*
+	cat $(SPACES) $(16HEX)/* > $(FONTFILE).hex
 
-$(FONTFILE).hex: $(SOURCEDIR)/$(FONTFILE).hex
-	cp -f $(SOURCEDIR)/$(FONTFILE).hex $(FONTFILE).hex
+$(FONTFILE)-combining.txt: $(COMBINING)
+		cp -f $(COMBINING) $(FONTFILE)-combining.txt
 
-$(COMBINING).txt: $(SOURCEDIR)/$(COMBINING).txt
-		cp -f $(SOURCEDIR)/$(COMBINING).txt $(COMBINING).txt
+$(FONTFILE)-32.hex: $(SPACES) $(32HEX)/*
+	cat $(SPACES) $(32HEX)/* > $(FONTFILE)-32.hex
+
+$(FONTFILE)-32-combining.txt: $(COMBINING)
+		cp -f $(COMBINING) $(FONTFILE)-32-combining.txt
 
 #
 # Commented out this operation on SFD file because not all applications
@@ -94,9 +112,8 @@ $(COMBINING).txt: $(SOURCEDIR)/$(COMBINING).txt
 
 # Go Note: I slightly simplified this to do everything in one step.
 
-outline: $(FONTFILE).hex $(BINDIR)/hex2sfd $(COMBINING).txt
-	echo "Converting font as a single file."
-	$(BINDIR)/hex2sfd $(COMBINING).txt < $(FONTFILE).hex > $(FONTFILE).sfd
+16: $(FONTFILE).hex $(BINDIR)/hex2sfd $(FONTFILE)-combining.txt
+	$(BINDIR)/hex2sfd $(FONTFILE)-combining.txt < $(FONTFILE).hex > $(FONTFILE).sfd
 	$(FONTFORGE) -lang=ff -c \
 	   'Open($$1); \
 	    SetFontNames("$(PSNAME)", \
@@ -108,7 +125,24 @@ outline: $(FONTFILE).hex $(BINDIR)/hex2sfd $(COMBINING).txt
 	    Save($$1); \
 		Generate($$2);' \
 	   $(FONTFILE).sfd $(PSNAME).ttf
-	rm -f $(FONTFILE).hex $(COMBINING).txt
+	rm -f $(FONTFILE).hex $(FONTFILE)-combining.txt
+
+# Go Note: …And the 32px version:
+
+32: $(FONTFILE)-32.hex $(BINDIR)/hex2sfd $(FONTFILE)-32-combining.txt
+	$(BINDIR)/hex2sfd $(FONTFILE)-32-combining.txt < $(FONTFILE)-32.hex > $(FONTFILE)-32.sfd
+	$(FONTFORGE) -lang=ff -c \
+	   'Open($$1); \
+	    SetFontNames("$(PSNAME32)", \
+		"$(FONTNAME32)", "$(FONTNAME32)", "Medium", \
+		$(COPYRIGHT), "$(VERSION)"); \
+	    SelectAll(); \
+	    RemoveOverlap(); \
+	    Simplify(64,1); \
+	    Save($$1); \
+		Generate($$2);' \
+	   $(FONTFILE)-32.sfd $(PSNAME32).ttf
+	rm -f $(FONTFILE)-32.hex $(FONTFILE)-32-combining.txt
 
 #
 # This fontforge script reads a BDF font file and generates an SBIT font file.
@@ -155,4 +189,4 @@ clean:
 distclean: clean
 	\rm -f *.sfd *.ttf
 
-.PHONY: all outline sbit clean distclean
+.PHONY: all 16 32 sbit clean distclean
