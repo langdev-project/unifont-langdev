@@ -10,3 +10,7 @@
 
 - Added Unicode spaces.
 - 32px version png and hex files added&mdash;only page 1010 supported right now.
+
+###  02  ###
+
+- Added common transcription and punctuation characters from Unifont.

@@ -28,13 +28,14 @@ PSNAME=UnifontLANGDEV
 COMBINING=source/combining.txt
 
 # Go Note: I've added 16HEX which is the folder of the 16px hex files,
-# 32HEX which is the folder of the 32px hex files, and SPACES which is
-# the spaces.hex file. FONTNAME32 and PSNAME32 give the names for the
-# 32px version.
+# 32HEX which is the folder of the 32px hex files, and SPACES/
+# TRANSCRIPTION which are the spaces.hex and transcription.hex files.
+# FONTNAME32 and PSNAME32 give the names for the 32px version.
 
 16HEX=source/hex
 32HEX=source/hex-32
 SPACES=source/spaces.hex
+TRANSCRIPTION=source/transcription.hex
 FONTNAME32=Unifont LANGDEV 32
 PSNAME32=UnifontLANGDEV32
 
@@ -43,18 +44,14 @@ PSNAME32=UnifontLANGDEV32
 # Could also use bash string replacement if you know you're using bash.
 #
 
-# Go Note: The Unifont LANGDEV TTF only contains LANGDEV glyphs, which
-# were created by me. The full Unifont project has a much longer list
-# of contributors.
-
-COPYRIGHT = "Copyright (C) 2016 Margaret \"Go\" Shoemake. \
+COPYRIGHT = "Copyright (C) 2016 Margaret \"Go\" Shoemake, Roman Czyborra, Paul Hardy, Qianqian Fang, Andrew Miller, et al. \
 Licensed under the GNU General Public License; either version 2, or \
 (at your option) a later version, with the GNU Font Embedding Exception."
 
 # Go Note: The following version number is for 'LANGDEV in Unicode'.
 
 UNICODE_VERSION = 2.1
-PKG_REV = 01
+PKG_REV = 02
 VERSION = $(UNICODE_VERSION).$(PKG_REV)
 
 #
@@ -89,13 +86,13 @@ just16: 16
 # files out into the open if they aren't already.
 
 $(FONTFILE).hex: $(SPACES) $(16HEX)/*
-	cat $(SPACES) $(16HEX)/* > $(FONTFILE).hex
+	cat $(SPACES) $(TRANSCRIPTION) $(16HEX)/* > $(FONTFILE).hex
 
 $(FONTFILE)-combining.txt: $(COMBINING)
 		cp -f $(COMBINING) $(FONTFILE)-combining.txt
 
 $(FONTFILE)-32.hex: $(SPACES) $(32HEX)/*
-	cat $(SPACES) $(32HEX)/* > $(FONTFILE)-32.hex
+	cat $(SPACES) $(TRANSCRIPTION) $(32HEX)/* > $(FONTFILE)-32.hex
 
 $(FONTFILE)-32-combining.txt: $(COMBINING)
 		cp -f $(COMBINING) $(FONTFILE)-32-combining.txt
